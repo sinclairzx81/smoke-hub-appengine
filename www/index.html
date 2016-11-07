@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>smoke-io app engine messaging hub</title>
+    <!--<base href="http://smoke-io.appspot.com" target="_blank">-->
+	<link rel="stylesheet" href="./styles/site.css"></link>
+	<script src="./_ah/channel/jsapi"></script>
+	<script src="./scripts/hub/hub.js"></script>
+	<script>
+        window.addEventListener("load", function() {
+            hub.client("./", function(client) {
+                var elements = {
+                    address: document.querySelector("#address"),
+                    to     : document.querySelector("#to"),
+                    data   : document.querySelector("#data"),
+                    submit : document.querySelector("#submit"),
+                    clear  : document.querySelector("#clear"),
+                    output : document.querySelector("#output")
+                }
+                client.on("message", function(data) {
+                    elements.output.innerHTML += JSON.stringify(data, null, 2) + "\n"
+                    elements.output.scrollTop = elements.output.scrollHeight
+                })
+                client.on("error", function(error) {
+                    elements.output.innerHTML += error.message + "\n"
+                    elements.output.scrollTop = elements.output.scrollHeight
+                })
+                client.on("close", function() {
+                    elements.output.innerHTML += "closed." + "\n"
+                    elements.output.scrollTop = elements.output.scrollHeight
+                })
+                elements.address.innerHTML = client.address()
+                elements.to.value          = client.address()
+                elements.submit.addEventListener("click", function() {
+                    client.send(
+                        elements.to.value, 
+                        elements.data.value
+                    )
+                })
+                elements.clear.addEventListener("click", function() {
+                    elements.output.innerHTML = ''
+                    elements.output.scrollIntoView(false)
+                })
+            })
+        })
+    </script>
+</head>
+
+<body>
+	<div id="container">
+		<div id="header">
+			<h1>smoke io</h1>
+			<p>app engine messaging hub</p>
+		</div>
+		<div id="content">
+			<div id="left">
+				<div id="information">
+					<h3>what is this?</h3>
+					<p>This is a test page for the smoke-io app engine messaging service. 
+                        A reference client script to interact with this service
+                        may be located <a href="./scripts/hub/hub.js">here</a>. An example of how 
+                        one interacts with this service can be seen by viewing this pages 
+                        source.
+                    </p>
+                    <p>Use the form below to relay messages to other addresses on the hub.</p>
+				</div>
+				<div id="controls">
+					<div class="field">
+						<span>address</span><span id="address">resolving..</span>
+					</div>
+					<div class="field">
+						<span>to </span><input id="to" type="text" />
+					</div>
+					<div class="field">
+						<span>data </span><input id="data" type="text" value="hello world" />
+					</div>
+					<div class="field">
+						<span>  </span><input id="submit" type="button" value="send" />
+					</div>
+				</div>
+
+			</div>
+			<div id="right">
+				<div id="logging">
+					<div class="header">
+						<input id="clear" type="button" value="clear" />
+					</div>
+					<div class="content">
+						<pre id="output"></pre>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
